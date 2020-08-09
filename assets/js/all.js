@@ -51,7 +51,7 @@ new Vue({
     },
     signOut() {
       document.cookie = `token=; expires=; path=/`;
-      window.location = '/login.html';
+      window.location = '/week4-js/login.html';
     },
     getProducts(num = 1) {
       const url = `${this.api.path}/${this.api.uuid}/admin/ec/products?page=${num}&paged=12`;
