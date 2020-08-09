@@ -1,0 +1,12 @@
+html,
+    body {
+      height: 100vh;
+      text-align: center;
+      background-color: gray;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }

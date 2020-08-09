@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+        integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <title>Document</title>
+    <style>
+        .fix-top{
+            position:fixed;
+            top:0;
+            right:0;
+        }
+    </style>
+</head>
+
+<body class="bg-secondary">
+    <section class="container py-5">
+        <div id="app">
+            <button type="button" class="fix-top btn-danger" @click="openModal('out')">登出</button>
+            <button type="button" class="btn btn-dark w-100 mb-3" @click="openModal('new')">建立新的桌遊</button>
+            <table class="table table-dark">
+                <thead>
+                    <tr class="text-secondary">
+                        <th scope="col">分類</th>
+                        <th scope="col">名稱</th>
+                        <th scope="col">排名</th>
+                        <th scope="col">難度</th>
+                        <th scope="col" class="text-center">文字需求</th>
+                        <th scope="col" class="text-center">編輯</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in products" :key="item.id">
+                        <td>{{ item.category }}</td>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.origin_price }}</td>
+                        <td>
+                            <span v-if="item.unit >= 4">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </span>
+                            <span v-else-if="item.unit >= 3.5">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            </span>
+                            <span v-else-if="item.unit >=2.5">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
+                            </span>
+                            <span v-else-if="item.unit >=2">
+                                <i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i><i class="far fa-star"></i>
+                            </span>
+                            <span v-else-if="item.unit >=1.5">
+                                <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                            </span>
+                            <span v-else>
+                                <i class="fas fa-star-half-alt"></i><i class="far fa-star"></i><i class="far fa-star"></i>
+                            </span>
+                        </td>
+                        <td class="text-center ">
+                            <span v-if="item.enabled" class="text-info"><i class="far fa-check-circle h4"></i></span>
+                            <span v-else class="text-danger"><i class="far fa-times-circle h4"></i></span>
+                        </td>
+                        <td>
+                            <div class="btn-group d-flex justify-content-between">
+                                <button class="btn btn-outline-secondary btn-sm" @click="openModal('edit', item)">
+                                    編輯
+                                </button>
+                                <button class="btn btn-outline-warning btn-sm" @click="openModal('delete', item)">
+                                    刪除
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div is="pagination" :pages="pagination" @updatepage="getProducts"></div>
+
+            <!-- Modal -->
+            <!-- 修改或新增 -->
+            <div id="productModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div is="modal" :temp-product="tempProduct" :api="api" @update="getProducts"></div>
+            </div>
+
+            <!-- 刪除 -->
+            <div id="delProductModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div is="delPro" :temp-product="tempProduct" :api="api" @update="getProducts"></div>
+            </div>
+
+            <!-- 登出 -->
+            <div id="signOut" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content border-0">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 id="exampleModalLabel" class="modal-title">
+                                <span>登出並清除cookie</span>
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            是否登出並清除
+                            <strong class="text-danger">{{  }}</strong> 
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                                取消
+                            </button>
+                            <button type="button" class="btn btn-danger" @click="signOut">
+                                確認登出
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="assets/js/all.js" type="module"></script>
+    
+</body>
+
+</html>
